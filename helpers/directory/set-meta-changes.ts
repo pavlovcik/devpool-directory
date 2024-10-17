@@ -16,17 +16,13 @@ export async function setMetaChanges({
 }) {
   const shouldUpdate = metaChanges.title || metaChanges.body || metaChanges.labels;
 
+  let newBody = remoteFullIssue.html_url;
+  const isFork = await checkIfForked();
+  if (isFork) {
+    newBody = newBody.replace("https://github.com", "https://www.github.com");
+  }
+
   if (shouldUpdate) {
-    let newBody = remoteFullIssue.body;
-
-    const isFork = await checkIfForked();
-
-    if (isFork) {
-      newBody = remoteFullIssue.html_url.replace("https://github.com", "https://www.github.com");
-    } else {
-      newBody = directoryIssue.html_url;
-    }
-
     try {
       await octokit.rest.issues.update({
         owner: DEVPOOL_OWNER_NAME,
